@@ -1,9 +1,44 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookOpen, Users, Trophy, Clock, Star, FileText, MapPin } from "lucide-react";
+import { ArrowLeft, BookOpen, Users, Trophy, Clock, Star, FileText, MapPin, User } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const InternDashboard = ({ onBack }) => {
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+  }, []);
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userRole');
+    navigate('/login');
+  };
+
   const internshipOpportunities = [
     {
       id: 1,
@@ -69,7 +104,7 @@ const InternDashboard = ({ onBack }) => {
           <div className="flex justify-between items-center py-4">
             <Button 
               variant="outline" 
-              onClick={onBack}
+              onClick={handleBack}
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -78,11 +113,28 @@ const InternDashboard = ({ onBack }) => {
             <h1 className="text-2xl font-bold text-slate-900">Intern Dashboard</h1>
             <div className="flex items-center space-x-4">
               <Button variant="outline" size="sm">
-                Portfolio
+                <BookOpen className="h-4 w-4 mr-2" />
+                Learning
               </Button>
-              <Button variant="outline" size="sm">
-                Profile
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>{userData ? `${userData.firstName} ${userData.lastName}` : 'Profile'}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
